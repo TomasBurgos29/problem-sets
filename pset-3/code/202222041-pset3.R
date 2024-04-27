@@ -14,7 +14,8 @@ rm(list = ls())
 ##Packages
 require(pacman)
 p_load(rio, data.table, tidyverse, janitor,
-       ggplot2, stringr, readr,patchwork, hrbrthemes)
+       ggplot2, stringr, readr,patchwork, 
+       hrbrthemes,ggthemes)
 
 ##____________ 1. Bucle ____________##
 
@@ -100,19 +101,25 @@ output<-mutate(output,TD=(total_dsi/total_ft)*100,
 
    
 gra<-ggplot(output, aes(x = MES, y=TO)) +
-  geom_line(aes(group=1),size = 2,) + 
-  geom_point(shape=21, color="black", fill="black", size=3)+
+  geom_line(aes(group=1),size = 2, color="dodgerblue") + 
+  geom_point(shape=21, color="dodgerblue4", fill="dodgerblue4", size=3)+
   labs(title = "Tasa de Ocupación de Colombia en el 2023",
             y = "Porcentaje (%)",
             x = "Mes")+
-  theme_ipsum_pub()
+  geom_text(aes(label=round(TO,2)),color="black", 
+            vjust=2, fontface="bold")+
+  theme_economist_white()
+gra
 gra2<-ggplot(output, aes(x = MES, y=TD))+
-  geom_line(aes(group=1), size = 2,)+ 
+  geom_line(aes(group=1), size = 2,color="darkorange")+ 
  labs(title = "Tasa de Desempleo de Colombia en el 2023",
            y = "Porcentaje (%)",
            x = "Mes")+
-  geom_point(shape=21, color="black", fill="black", size=3)+
-  theme_ipsum_pub()
+  geom_point(shape=21, color="darkorange4", fill="darkorange4", size=3)+
+  geom_text(aes(label=round(TD,2)),color="black", 
+            vjust=1, fontface="bold")+
+  theme_economist_white()
+gra2
 TOTD<-gra+gra2
 TOTD
 
@@ -124,6 +131,7 @@ TOTD
 
 
 ##___________No logre la escala en el 2ndo eje de Y___________##
+
 grf<-ggplot(output, aes(x = MES)) +
   geom_line(aes(y = TO,
                 color="Tasa de ocupación",
