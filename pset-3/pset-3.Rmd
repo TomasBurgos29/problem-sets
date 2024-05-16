@@ -1,46 +1,45 @@
 ---
 title: "Taller de R: Estadística y Programación"
 author: "Taller 3"
-date: "`r Sys.Date()`"
-output: pdf_document
+date: "2024-03-28"
+output: 
+       pdf_document:
+                   latex_engine: xelatex
+lang: es
+header-includes:
+- \usepackage{xcolor}
+- \usepackage[colorlinks = true,
+              linkcolor = blue,
+              urlcolor  = blue,
+              citecolor = blue,
+              anchorcolor = blue]{hyperref}
+- \newcommand{\newref}[3][blue]{\href{#2}{\color{#1}{#3}}}
 ---
 
-<style>
-a {
-    color: blue;
-}
-</style>
-
 <!-- Configuracion de la consola de R -->
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = T , eval = T , warning = T)
 ```
 
 En este taller se evalúan los temas vistos en las clases 7 y 10 del curso. Lea atentamente las instrucciones del taller.
 
-<!----------------------------------------------------------------------------->
-
-```{=tex}
+<!-------- Instrucciones ----------->
 \begin{center} \textcolor{blue}{\subsection{Instrucciones}} \end{center}
-```
--   Este taller representa el **33.3%** de la nota total del curso y podrá responderlo de manera individual o en grupo de hasta 3 personas. En las primeras líneas del script debe escribir su nombre, código y la versión de R sobre la que está trabajando. Además, al inicio del código debe llamar/instalar las librerías que va a usar en la sesión. Por ejemplo: `pacman`, `rio`, `data.table` y `tidyverse` (a lo menos).
 
--   Asegúrate de descargar las bases de datos del repositorio <https://github.com/taller-r-202403/problem-sets> y crear un nuevo repositorio en tu cuenta de GitHub. Si va a trabajar en grupo, solo 1 de los integrantes del grupo debe crear el repositorio y compartir el acceso a los demás integrantes. El repositorio debe ser público para que se pueda acceder desde cualquier cuenta de GitHub. Adicionalmente, este repositorio debe incluir a lo menos tres carpetas: `input` (datos originales), `output` (datos procesados) y `code` (script con la respuesta del taller).
+- Este taller representa el **25%** de la nota total del curso y puede ser realizado de manera individual o en grupos de hasta 3 personas. En las primeras líneas del script, escriba su nombre, código y la versión de R que está utilizando. Además, al inicio del código, debe incluir las librerías que utilizará en la sesión, por ejemplo: `pacman`, `rio`, `data.table`, `tidyverse`, `sf`, y `rvest`.
 
--   Todos los integrantes del grupo deberan colgar el link al repositorio de GitHub en la actividad **Proble-set-3** de Bloque Neón antes de las 23:59 horas del 26 de abril de 2024.
+- Asegúrese de descargar las bases de datos desde el repositorio <https://github.com/taller-r-202403/problem-sets> y de crear un nuevo repositorio en su cuenta de GitHub. Si trabaja en grupo, solo un integrante debe crear el repositorio y compartir el acceso con los demás. El repositorio debe ser público para permitir el acceso desde cualquier cuenta de GitHub. Incluya al menos tres carpetas en el repositorio: `input` (datos originales), `output` (datos procesados), y `code` (script con la respuesta del taller).
 
--   Por favor sea lo más organizado posible y comente paso a paso cada línea de código, pero recuerden **NO** usar ningún acento o carácter especial dentro del código para evitar problemas al abrir los scripts en los diferentes sistemas operativos.
+- Todos los integrantes del grupo deben publicar el enlace al repositorio de GitHub en la actividad **Problem-set-3** del Bloque Neón antes de las 23:59 horas del 26 de abril de 2024.
 
--   No seguir las instrucciones tiene una penalización del **20%** de la nota final.
+- Por favor, organice su trabajo cuidadosamente y comente paso a paso cada línea de código. Recuerde **NO** usar acentos ni caracteres especiales dentro del código para evitar problemas al abrir los scripts en diferentes sistemas operativos.
 
-<!----------------------------------------------------------------------------->
+- No seguir estas instrucciones resultará en una penalización del **20%** en la nota final.
 
-```{=tex}
-\begin{center} \textcolor{blue}{\section{Problem set 3}} \end{center}
-```
+<!-------- Solucionar: ----------->
+\begin{center} \textcolor{blue}{\subsection{Solucionar:}} \end{center}
 
-Se debe emplear un bucle o una función para importar los archivos de la Gran Encuesta Integrada de Hogares que se encuentran en la carpeta `input`. Además, si es necesario, se puede acceder al [diccionario](https://microdatos.dane.gov.co/index.php/catalog/782/data-dictionary) o descargar el documento [técnico](https://www.dane.gov.co/files/operaciones/GEIH/bol-GEIH-dic2023.pdf) de los datos.
+Se debe emplear un bucle o una función para importar los archivos de la Gran Encuesta Integrada de Hogares que se encuentran en la carpeta `input`. Además, si es necesario, se puede acceder al \newref{https://microdatos.dane.gov.co/index.php/catalog/782/data-dictionary}{diccionario} o descargar el documento \newref{https://www.dane.gov.co/files/operaciones/GEIH/bol-GEIH-dic2023.pdf}{técnico} de los datos.
 
 <!------------------->
 

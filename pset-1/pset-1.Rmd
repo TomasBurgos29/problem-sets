@@ -1,6 +1,6 @@
 ---
 title: "Taller de R: Estadística y Programación"
-date: '03/02/2024'
+date: '2024-02-03'
 pagetitle: "Taller 1"
 output: 
        pdf_document: default
@@ -19,7 +19,7 @@ En este problem set se evalúan los temas vistos en las clases 1 a 3 del curso. 
 ```{=tex}
 \begin{center} \textcolor{blue}{\subsection{Instrucciones}} \end{center}
 ```
--   Este taller pesa el **20%** de la nota total del curso y podrá responderlo de manera individual o en grupo de hasta 3 personas. 
+-   Este taller pesa el **25%** de la nota total del curso y podrá responderlo de manera individual o en grupo de hasta 3 personas. 
 
 - Debe crear un script en el que almacene las respuestas del problem-set. Asigné su código al nombre del archivo. Por ejemplo `201725852.R`.
 
