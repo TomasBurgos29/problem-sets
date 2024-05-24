@@ -1,0 +1,172 @@
+---
+title: "Problem Set 4"
+author: "Tomás Burgos"
+date: "2024-05-23"
+output: html_document
+lang: es
+---
+Problem Set 4
+
+Comenzamos por instalar los paquetes necesarios para la sesión.
+
+```{r eval=T, echo=T}
+
+##Paquetes
+require(pacman)
+p_load(tidyverse, 
+       rio,
+       data.table,
+       skimr,
+       sf, 
+       rvest, 
+       ggplot2,
+       mapview,
+       tmaptools,
+       osmdata,
+       viridis,
+       rmarkdown)
+```
+
+##**1. Extraer la información de internet (50%)**
+
+Primero, debe dirigirse a la página \newref{https://eduard-martinez.github.io/pset-4.html}{https://eduard-martinez.github.io/pset-4.html} y examinar su contenido.
+
+- **1.1** **Obtener las URL **
+
+Cree un objeto llamdo `url_full` que almacene el vector de URLs contenidas en la página \newref{https://eduard-martinez.github.io/pset-4.html}{../pset-4.html}.
+
+R:
+
+```{r}
+
+pset4<-"https://eduard-martinez.github.io/pset-4.html"
+url_full<-read_html(pset4)%>%html_elements("a") %>% html_attr("href")
+```
+
+- **1.2** **Filtrar URL:**
+
+Del objeto `url_full` mantenga únicamente las URLs que contengan la palabra `propiedad`, guarde el resultado en un objeto llamado `url_subset`. 
+
+R:
+
+```{r}
+url_subset<- str_subset(url_full, "propiedad")
+```
+
+-   **1.3 Extraer las tablas de los HTML:**
+
+Utilice un bucle o función que itere sobre todos los elementos del objeto `url_subset`. Para cada URL, extraiga de su correspondiente HTML la tabla que contiene la información de las coordenadas y el precio de la propiedad. Almacene el resultado de este loop en un objeto tipo lista llamado `lista_tablas`.
+
+R:
+
+```{r}
+
+lista_tablas<-list()
+
+for (vivienda in 1:220){
+
+html_i<-read_html(url_subset[vivienda])
+
+  precio<-html_i%>%
+    html_element(xpath=
+      '//*[@id="caracteristicas-de-la-vivienda"]/table/tbody/tr/td[8]')%>%
+    html_text2()
+
+  latitud<- html_i%>%
+    html_element(xpath=
+      '//*[@id="caracteristicas-de-la-vivienda"]/table/tbody/tr/td[10]') %>%
+    html_text2()
+
+  
+  longitud<-html_i%>%
+    html_element(xpath=
+      '//*[@id="caracteristicas-de-la-vivienda"]/table/tbody/tr/td[11]') %>%
+    html_text2()  
+
+casa_dt<-list(URL=url_subset[vivienda], price=precio,lat=latitud,
+              lon=longitud)
+lista_tablas[[vivienda]]<-casa_dt 
+}
+
+```
+
+-   **1.4 Preparar información:**
+
+Utilice la función `rbindlist` del paquete `data.table` para convertir la lista `lista_tablas` en un dataframe. Almacene este resultado en un objeto llamado `db_house`, que contendrá toda la información de las tablas.
+
+R:
+
+```{r}
+db_house<-rbindlist(lista_tablas, fill=T)
+db_house$price<-as.numeric(db_house$price)
+
+```
+
+Podemos analizar brevemente los precios de las viviendas en Bogotá
+
+```{r}
+
+skim(db_house$price)
+
+```
+Observamos que en promedio, la vivienda cuesta 1 399 712 145. A su vez vemos que el precio máximo es 90 000 000 000 y que el precio minimo es 19 000 000, por lo que los valores extremos tienen una gran influencia en esta estadistica, no nos podemos fijar en esta.
+
+En cambio si observamos un histograma podriamos tener una información más precisa
+
+```{r}
+histo<-ggplot(db_house, aes(x=price))+geom_histogram(bins=30)+
+  labs(title = "Histograma de precios de las vivienda bogotanas de la base de datos", x="Precio", y="Número de viviendas")+theme_classic()
+histo
+```
+
+Podemos afirmar que la mayoria de viviendas se encuentran por debajo de los mil millones. 
+
+
+## **2. Manipular la información GIS (50%)**
+
+-   **2.1 Cree un objeto `sf`**
+
+Utilice la función `st_as_sf` del paquete `sf` para convertir el objeto `db_house` en un `SimpleFeature` de tipo punto. Nombre este nuevo objeto `sf_house`.
+
+R: 
+
+```{r}
+sf_house<- st_as_sf(db_house, coords=c("lon","lat"), crs=4326)
+
+```
+
+-   **2.2 Pintar mapa**
+
+Utilice la función `geom_sf` de la librería `ggplot2` para crear un mapa que visualice los puntos almacenados en el objeto `sf_house`. Utilice el valor de la vivienda como escala de colores, aplicando las paletas de colores de la función `scale_fill_viridis`. Una vez generado el mapa, exporte este objeto en formato `.pdf`.
+
+R: Se crea un objeto con los datos geográficos de las zonas de Bogotá. Estos datos se utilizan para crear un ggplot junto los datos de `sf_house`, se elige como variable los precios de cada vivienda. Se le añade una escala de colores para observar la diferencia de precios de vivienda que tiene la base de datos. 
+
+```{r}
+bog <- opq(bbox = getbb("Bogota Colombia")) %>%
+  add_osm_feature(key="boundary", value="administrative") %>% 
+  osmdata_sf()
+bog <- bog$osm_multipolygons %>% subset(admin_level==9)
+
+mapa <- ggplot() +
+  geom_sf(data = bog, color = "black") +
+  geom_sf(data = sf_house, aes(color = price), size = 1) +
+  scale_color_viridis(option="inferno", trans="log10", direction=-1)+
+  labs(title= "Precio de la vivienda en Bogotá", color= "Precio (en log10)")+
+  theme_void()
+
+```
+
+Lo exporto en un objeto PDF:
+
+```{r}
+ggsave("output/mapa_vivienda.pdf", plot=mapa)
+```
+Como resultado obtendriamos este mapa: 
+
+```{r}
+
+mapa
+
+```
+
+En el mapa observamos que la mayoria de viviendas con alto precio se encuentran al norte de la ciudad (vemos que los puntos más oscuros se encuentran al norte), un conclusión que se podría esperar si uno conoce la ciudad de Bogotá. En cambio, sin conocer la ciudad de Bogotá, los datos no nos servirian para determinar esa conclusión ya que la mayoria de viviendas que tenemos en la base de datos se encuentran al nordeste de la ciudad. 
