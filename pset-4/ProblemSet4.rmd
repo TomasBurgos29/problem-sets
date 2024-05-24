@@ -35,7 +35,7 @@ Primero, debe dirigirse a la página \newref{https://eduard-martinez.github.io/p
 
 Cree un objeto llamdo `url_full` que almacene el vector de URLs contenidas en la página \newref{https://eduard-martinez.github.io/pset-4.html}{../pset-4.html}.
 
-R:
+R: Se transforma el link dado en un objeto, y luego usamos las funciones read_html, html_elements, html_attr para que el vector `url_full` contenga todas las URLS de la página.
 
 ```{r}
 
@@ -47,7 +47,7 @@ url_full<-read_html(pset4)%>%html_elements("a") %>% html_attr("href")
 
 Del objeto `url_full` mantenga únicamente las URLs que contengan la palabra `propiedad`, guarde el resultado en un objeto llamado `url_subset`. 
 
-R:
+R: Se usa str_subset para consguir todas las URL de `url_full` que contengan la palabra `propiedad`.
 
 ```{r}
 url_subset<- str_subset(url_full, "propiedad")
@@ -57,7 +57,7 @@ url_subset<- str_subset(url_full, "propiedad")
 
 Utilice un bucle o función que itere sobre todos los elementos del objeto `url_subset`. Para cada URL, extraiga de su correspondiente HTML la tabla que contiene la información de las coordenadas y el precio de la propiedad. Almacene el resultado de este loop en un objeto tipo lista llamado `lista_tablas`.
 
-R:
+R: Se crea una función para obtener los elementos HTML de cada vivienda. La función lee el html de cada vivienda, y luego busca el precio, la latitud y la longitud gracias a XPath. Por último,se pasan los datos obtenidos a una lista llamada `lista_tablas`.
 
 ```{r}
 
@@ -94,7 +94,7 @@ lista_tablas[[vivienda]]<-casa_dt
 
 Utilice la función `rbindlist` del paquete `data.table` para convertir la lista `lista_tablas` en un dataframe. Almacene este resultado en un objeto llamado `db_house`, que contendrá toda la información de las tablas.
 
-R:
+  R: Se usa la funcion `rbindlist` para transformar la `list_tablas` en un `data.table`, y se modifica la variable "precios" para que los caracteres sean números . 
 
 ```{r}
 db_house<-rbindlist(lista_tablas, fill=T)
@@ -102,25 +102,29 @@ db_house$price<-as.numeric(db_house$price)
 
 ```
 
-Podemos analizar brevemente los precios de las viviendas en Bogotá
+  Podemos analizar brevemente los precios de las viviendas en Bogotá
 
 ```{r}
 
 skim(db_house$price)
 
 ```
-Observamos que en promedio, la vivienda cuesta 1 399 712 145. A su vez vemos que el precio máximo es 90 000 000 000 y que el precio minimo es 19 000 000, por lo que los valores extremos tienen una gran influencia en esta estadistica, no nos podemos fijar en esta.
+  
+  Observamos que el precio promedio de una vivienda en Bogotá 1 399 712 145. Tambien observamos que el mayor precio por una vivienda es 90 000 000 000 y que el menor, es 19 000 000. Entonces, los valores extremos influyen significativamente la media, por lo que no es una estadistiica significativa.
 
-En cambio si observamos un histograma podriamos tener una información más precisa
+  En cambio, si observamos el histograma de los precios de las viviendas obtenemos una conclusión más realista sobre los precios.
 
 ```{r}
 histo<-ggplot(db_house, aes(x=price))+geom_histogram(bins=30)+
-  labs(title = "Histograma de precios de las vivienda bogotanas de la base de datos", x="Precio", y="Número de viviendas")+theme_classic()
+  labs(title = "Histograma de precios de las vivienda bogotanas", subtitle = "Base de datos de 220 viviendas de Bogotá", x="Precio", y="Número de viviendas")+scale_x_log10()+theme_classic()
+
+##Visualizamos el histograma
+
 histo
+
 ```
 
-Podemos afirmar que la mayoria de viviendas se encuentran por debajo de los mil millones. 
-
+Gracias a este histograma se puede concluir que la mayoria de viviendas en la base de datos valen menos 
 
 ## **2. Manipular la información GIS (50%)**
 
@@ -128,7 +132,8 @@ Podemos afirmar que la mayoria de viviendas se encuentran por debajo de los mil 
 
 Utilice la función `st_as_sf` del paquete `sf` para convertir el objeto `db_house` en un `SimpleFeature` de tipo punto. Nombre este nuevo objeto `sf_house`.
 
-R: 
+  R: Transformo `db_house` en un objeto sf, juntando las variables longitud y latitud para generar las coordenadas de cada vivienda.
+
 
 ```{r}
 sf_house<- st_as_sf(db_house, coords=c("lon","lat"), crs=4326)
@@ -139,7 +144,7 @@ sf_house<- st_as_sf(db_house, coords=c("lon","lat"), crs=4326)
 
 Utilice la función `geom_sf` de la librería `ggplot2` para crear un mapa que visualice los puntos almacenados en el objeto `sf_house`. Utilice el valor de la vivienda como escala de colores, aplicando las paletas de colores de la función `scale_fill_viridis`. Una vez generado el mapa, exporte este objeto en formato `.pdf`.
 
-R: Se crea un objeto con los datos geográficos de las zonas de Bogotá. Estos datos se utilizan para crear un ggplot junto los datos de `sf_house`, se elige como variable los precios de cada vivienda. Se le añade una escala de colores para observar la diferencia de precios de vivienda que tiene la base de datos. 
+  R: Se crea un objeto con los datos geográficos con las zonas de Bogotá. Estos datos se utilizan para crear un ggplot junto los datos de `sf_house`, se elige como variable los precios de cada vivienda. Se le añade una escala de colores para observar la diferencia de precios de vivienda que tiene la base de datos. 
 
 ```{r}
 bog <- opq(bbox = getbb("Bogota Colombia")) %>%
@@ -156,17 +161,21 @@ mapa <- ggplot() +
 
 ```
 
-Lo exporto en un objeto PDF:
+  Lo exporto en un objeto PDF:
 
 ```{r}
 ggsave("output/mapa_vivienda.pdf", plot=mapa)
 ```
-Como resultado obtendriamos este mapa: 
+  Como resultado obtendriamos este mapa: 
 
 ```{r}
+
+##Visualizamos el mapa
 
 mapa
 
 ```
 
-En el mapa observamos que la mayoria de viviendas con alto precio se encuentran al norte de la ciudad (vemos que los puntos más oscuros se encuentran al norte), un conclusión que se podría esperar si uno conoce la ciudad de Bogotá. En cambio, sin conocer la ciudad de Bogotá, los datos no nos servirian para determinar esa conclusión ya que la mayoria de viviendas que tenemos en la base de datos se encuentran al nordeste de la ciudad. 
+En el mapa observamos que las viviendas con un mayor precio se encuentran al nordeste de la ciudad (vemos que los puntos más oscuros se concentran en esta área), una conclusión que se podría esperar con un conocimiento previo de la ciudad de Bogotá. En cambio, sin este conocimiento de la ciudad de Bogotá, los datos por si solos no serían suficientes para determinar esa conclusión ya que la mayoría de las viviendas de la base de datos se encuentran al nordeste de la ciudad. 
+
+
