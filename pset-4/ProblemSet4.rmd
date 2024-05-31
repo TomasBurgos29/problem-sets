@@ -27,7 +27,7 @@ p_load(tidyverse,
        rmarkdown)
 ```
 
-##**1. Extraer la información de internet (50%)**
+## **1. Extraer la información de internet (50%)**
 
 Primero, debe dirigirse a la página \newref{https://eduard-martinez.github.io/pset-4.html}{https://eduard-martinez.github.io/pset-4.html} y examinar su contenido.
 
@@ -110,7 +110,7 @@ skim(db_house$price)
 
 ```
   
-  Observamos que el precio promedio de una vivienda en Bogotá 1 399 712 145. Tambien observamos que el mayor precio por una vivienda es 90 000 000 000 y que el menor, es 19 000 000. Entonces, los valores extremos influyen significativamente la media, por lo que no es una estadistiica significativa.
+  Observamos que el precio promedio de una vivienda en Bogotá 1 399 712 145. Tambien observamos que el mayor precio por una vivienda es 90 000 000 000 y el menor es 19 000 000. Entonces, los valores extremos influyen significativamente la media, por lo que no es una estadistica significativa.
 
   En cambio, si observamos el histograma de los precios de las viviendas obtenemos una conclusión más realista sobre los precios.
 
@@ -124,7 +124,7 @@ histo
 
 ```
 
-Gracias a este histograma se puede concluir que la mayoria de viviendas en la base de datos valen menos 
+Gracias a este histograma se puede concluir que la mayoria de viviendas en la base de datos valen menos de mil millones.
 
 ## **2. Manipular la información GIS (50%)**
 
@@ -153,11 +153,11 @@ bog <- opq(bbox = getbb("Bogota Colombia")) %>%
 bog <- bog$osm_multipolygons %>% subset(admin_level==9)
 
 mapa <- ggplot() +
-  geom_sf(data = bog, color = "black") +
+  geom_sf(data = bog, color = "grey") +
   geom_sf(data = sf_house, aes(color = price), size = 1) +
   scale_color_viridis(option="inferno", trans="log10", direction=-1)+
-  labs(title= "Precio de la vivienda en Bogotá", color= "Precio (en log10)")+
-  theme_void()
+  labs(title= "Precio de la vivienda en Bogotá", color= "Precio (en log10)")+theme_void()
+  
 
 ```
 
@@ -176,6 +176,4 @@ mapa
 
 ```
 
-En el mapa observamos que las viviendas con un mayor precio se encuentran al nordeste de la ciudad (vemos que los puntos más oscuros se concentran en esta área), una conclusión que se podría esperar con un conocimiento previo de la ciudad de Bogotá. En cambio, sin este conocimiento de la ciudad de Bogotá, los datos por si solos no serían suficientes para determinar esa conclusión ya que la mayoría de las viviendas de la base de datos se encuentran al nordeste de la ciudad. 
-
-
+En el mapa observamos que las viviendas con un mayor precio se encuentran al nordeste de la ciudad (vemos que los puntos más oscuros se concentran en esta área), una conclusión que se podría esperar con un conocimiento previo de la ciudad de Bogotá. En cambio, sin este conocimiento de la ciudad de Bogotá, los datos por si solos no serían suficientes para determinar esa conclusión ya que la mayoría de las viviendas de la base de datos se encuentran al nordeste de la ciudad.
